@@ -4,29 +4,38 @@ using UnityEngine;
 
 public class PixelGrid : MonoBehaviour
 {
+    private Mesh mesh;
+    private LayerMask targetMask;
+    private Vector3 mainCameraPosition;
+
     void Start()
     {
-        Mesh mesh = GetComponent<MeshFilter>().mesh;
-        Vector3[] vertices = mesh.vertices;
+        mesh = GetComponent<MeshFilter>().mesh;
+        targetMask = LayerMask.GetMask("target");
 
-        // create new colors array where the colors will be created.
-        Color32[] colors = new Color32[vertices.Length];
-
-        for (int i = 0; i < vertices.Length; i++)
+        if (Camera.main == null)
         {
-            if (i % 2 == 0)
-            {
-                colors[i] = Color.blue;
-            }
+            throw new UnityException("No main camera found");
         }
-
-        // assign the array of colors to the Mesh.
-        mesh.colors32 = colors;
+        mainCameraPosition = Camera.main.transform.position;
     }
 
     // Update is called once per frame
     void Update()
     {
-        
+        if (Input.GetMouseButtonDown(0))
+        {
+            Color32[] newColors32 = new Color32[mesh.vertexCount];
+            
+            for (int vertex = 0; vertex < mesh.vertexCount; vertex++)
+            {
+                if (Physics.Linecast(mainCameraPosition, mesh.vertices[vertex], targetMask))
+                {
+                    newColors32[vertex] = new Color32(0, 0, 255, 0);
+                }
+            }
+
+            mesh.colors32 = newColors32;
+        }
     }
 }
