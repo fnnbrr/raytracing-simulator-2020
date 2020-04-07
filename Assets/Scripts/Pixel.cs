@@ -2,6 +2,8 @@
 
 public class Pixel : MonoBehaviour
 {
+    public float maxRaycastDistance = 100f;
+    
     private PixelGrid _parentGrid;
     private Mesh _mesh;
     
@@ -13,14 +15,17 @@ public class Pixel : MonoBehaviour
     
     public void PaintPixel()
     {
-        if (Physics.Linecast(_parentGrid.mainCameraPosition, transform.position, 
-            out RaycastHit hitInfo, _parentGrid.targetMask))
+        Ray viewingRay = new Ray();
+        viewingRay.origin = _parentGrid.dummyCameraPosition;
+        viewingRay.direction = transform.position - _parentGrid.dummyCameraPosition;
+        
+        if (Physics.Raycast(viewingRay, out RaycastHit hitInfo, maxRaycastDistance, _parentGrid.targetMask))
         {
             Color32[] newColors32 = new Color32[_mesh.vertexCount];
 
             Color32 hitColor = hitInfo.transform.gameObject.GetComponent<Renderer>().material.color;
             
-            Debug.DrawLine(_parentGrid.mainCameraPosition, transform.position, hitColor, 1);
+            Debug.DrawLine(_parentGrid.dummyCameraPosition, hitInfo.point, hitColor, 1);
             
             for (int vertex = 0; vertex < _mesh.vertexCount; vertex++)
             {
@@ -28,6 +33,12 @@ public class Pixel : MonoBehaviour
             }
 
             _mesh.colors32 = newColors32;
+        }
+
+        else
+        {
+            Vector3 missEndpoint = viewingRay.origin + (maxRaycastDistance * viewingRay.direction.normalized);
+            Debug.DrawLine(_parentGrid.dummyCameraPosition, missEndpoint, Color.white, 1);
         }
     }
 }

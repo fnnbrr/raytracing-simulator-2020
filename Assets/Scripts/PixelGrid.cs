@@ -4,20 +4,8 @@ using UnityEngine;
 public class PixelGrid : MonoBehaviour
 {
     public int pixelsPaintedPerSecond = 60;
-    
-    [HideInInspector] public LayerMask targetMask;
-    [HideInInspector] public Vector3 mainCameraPosition;
-
-    private void Start()
-    {
-        targetMask = LayerMask.GetMask("target");
-
-        if (Camera.main == null)
-        {
-            throw new UnityException("No main camera found");
-        }
-        mainCameraPosition = Camera.main.transform.position;
-    }
+    public Vector3 dummyCameraPosition;
+    public LayerMask targetMask;
 
     private void Update()
     {
