@@ -1,16 +1,13 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 
 public class PixelGrid : MonoBehaviour
 {
-    private Mesh mesh;
-    private LayerMask targetMask;
-    private Vector3 mainCameraPosition;
+    public LayerMask targetMask;
+    public Vector3 mainCameraPosition;
+    public bool paintThisFrame;
 
-    void Start()
+    private void Start()
     {
-        mesh = GetComponent<MeshFilter>().mesh;
         targetMask = LayerMask.GetMask("target");
 
         if (Camera.main == null)
@@ -20,22 +17,8 @@ public class PixelGrid : MonoBehaviour
         mainCameraPosition = Camera.main.transform.position;
     }
 
-    // Update is called once per frame
-    void Update()
+    private void Update()
     {
-        if (Input.GetMouseButtonDown(0))
-        {
-            Color32[] newColors32 = new Color32[mesh.vertexCount];
-            
-            for (int vertex = 0; vertex < mesh.vertexCount; vertex++)
-            {
-                if (Physics.Linecast(mainCameraPosition, mesh.vertices[vertex], targetMask))
-                {
-                    newColors32[vertex] = new Color32(0, 0, 255, 0);
-                }
-            }
-
-            mesh.colors32 = newColors32;
-        }
+        paintThisFrame = Input.GetMouseButtonDown(0);
     }
 }
