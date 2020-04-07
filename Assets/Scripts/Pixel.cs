@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using System.Collections;
+using UnityEngine;
 
 public class Pixel : MonoBehaviour
 {
@@ -6,40 +7,61 @@ public class Pixel : MonoBehaviour
     
     private PixelGrid _parentGrid;
     private Mesh _mesh;
+    private LineRenderer _lineRenderer;
     
     private void Start()
     {
         _parentGrid = GetComponentInParent<PixelGrid>();
         _mesh = GetComponent<MeshFilter>().mesh;
+        
+        _lineRenderer = gameObject.AddComponent<LineRenderer>();
+        _lineRenderer.material = new Material(Shader.Find("Sprites/Default"));
+        _lineRenderer.widthMultiplier = 0.01f;
+        _lineRenderer.enabled = false;
     }
     
     public void PaintPixel()
     {
-        Ray viewingRay = new Ray();
-        viewingRay.origin = _parentGrid.dummyCameraPosition;
-        viewingRay.direction = transform.position - _parentGrid.dummyCameraPosition;
+        Ray viewingRay = new Ray
+        {
+            origin = _parentGrid.dummyCameraPosition,
+            direction = transform.position - _parentGrid.dummyCameraPosition
+        };
+
+        Vector3 lineEndpoint = viewingRay.origin + (maxRaycastDistance * viewingRay.direction.normalized);
+        Color lineColor = Color.gray;
         
         if (Physics.Raycast(viewingRay, out RaycastHit hitInfo, maxRaycastDistance, _parentGrid.targetMask))
         {
             Color32[] newColors32 = new Color32[_mesh.vertexCount];
 
-            Color32 hitColor = hitInfo.transform.gameObject.GetComponent<Renderer>().material.color;
-            
-            Debug.DrawLine(_parentGrid.dummyCameraPosition, hitInfo.point, hitColor, 1);
+            lineEndpoint = hitInfo.point;
+            lineColor = hitInfo.transform.gameObject.GetComponent<Renderer>().material.color;
             
             for (int vertex = 0; vertex < _mesh.vertexCount; vertex++)
             {
-                newColors32[vertex] = hitColor;
+                newColors32[vertex] = lineColor;
             }
 
             _mesh.colors32 = newColors32;
         }
-
         else
         {
-            Vector3 missEndpoint = viewingRay.origin + (maxRaycastDistance * viewingRay.direction.normalized);
-            Debug.DrawLine(_parentGrid.dummyCameraPosition, missEndpoint, Color.white, 1);
+            StartCoroutine(ClearLineAfterDelay());
         }
+
+        Vector3[] positions = {_parentGrid.dummyCameraPosition, lineEndpoint};
+        _lineRenderer.SetPositions(positions);
+        _lineRenderer.startColor = lineColor;
+        _lineRenderer.endColor = lineColor;
+        _lineRenderer.enabled = true;
+    }
+    
+    public IEnumerator ClearLineAfterDelay(float delay=1)
+    {
+        yield return new WaitForSeconds(delay);
+
+        _lineRenderer.enabled = false;
     }
 
     public void ResetColor()
@@ -52,5 +74,9 @@ public class Pixel : MonoBehaviour
         }
 
         _mesh.colors32 = newColors32;
+        
+        StopAllCoroutines();
+        
+        _lineRenderer.enabled = false;
     }
 }

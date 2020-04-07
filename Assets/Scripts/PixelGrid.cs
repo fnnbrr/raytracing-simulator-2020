@@ -29,6 +29,11 @@ public class PixelGrid : MonoBehaviour
             child.gameObject.GetComponent<Pixel>().PaintPixel();
             yield return new WaitForSeconds(1.0f / pixelsPaintedPerSecond);
         }
+
+        foreach (Transform child in transform)
+        {
+            StartCoroutine(child.gameObject.GetComponent<Pixel>().ClearLineAfterDelay());
+        }
     }
 
     private void ResetPixels()
