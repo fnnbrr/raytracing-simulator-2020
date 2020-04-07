@@ -41,4 +41,16 @@ public class Pixel : MonoBehaviour
             Debug.DrawLine(_parentGrid.dummyCameraPosition, missEndpoint, Color.white, 1);
         }
     }
+
+    public void ResetColor()
+    {
+        Color32[] newColors32 = new Color32[_mesh.vertexCount];
+        
+        for (int vertex = 0; vertex < _mesh.vertexCount; vertex++)
+        {
+            newColors32[vertex] = Color.white;
+        }
+
+        _mesh.colors32 = newColors32;
+    }
 }

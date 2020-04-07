@@ -14,6 +14,12 @@ public class PixelGrid : MonoBehaviour
             StopAllCoroutines();
             StartCoroutine(PaintChildPixels());
         }
+        
+        else if (Input.GetKeyDown(KeyCode.R))
+        {
+            StopAllCoroutines();
+            ResetPixels();
+        }
     }
 
     private IEnumerator PaintChildPixels()
@@ -22,6 +28,14 @@ public class PixelGrid : MonoBehaviour
         {
             child.gameObject.GetComponent<Pixel>().PaintPixel();
             yield return new WaitForSeconds(1.0f / pixelsPaintedPerSecond);
+        }
+    }
+
+    private void ResetPixels()
+    {
+        foreach(Transform child in transform)
+        {
+            child.gameObject.GetComponent<Pixel>().ResetColor();
         }
     }
 }
