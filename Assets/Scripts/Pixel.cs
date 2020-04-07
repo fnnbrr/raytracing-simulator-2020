@@ -11,10 +11,8 @@ public class Pixel : MonoBehaviour
         _mesh = GetComponent<MeshFilter>().mesh;
     }
     
-    private void Update()
+    public void PaintPixel()
     {
-        if (!_parentGrid.paintThisFrame) return;
-        
         if (Physics.Linecast(_parentGrid.mainCameraPosition, transform.position, 
             out RaycastHit hitInfo, _parentGrid.targetMask))
         {
@@ -22,7 +20,7 @@ public class Pixel : MonoBehaviour
 
             Color32 hitColor = hitInfo.transform.gameObject.GetComponent<Renderer>().material.color;
             
-            Debug.DrawLine(_parentGrid.mainCameraPosition, transform.position, hitColor, 60);
+            Debug.DrawLine(_parentGrid.mainCameraPosition, transform.position, hitColor, 1);
             
             for (int vertex = 0; vertex < _mesh.vertexCount; vertex++)
             {

@@ -1,10 +1,12 @@
-﻿using UnityEngine;
+﻿using System.Collections;
+using UnityEngine;
 
 public class PixelGrid : MonoBehaviour
 {
-    public LayerMask targetMask;
-    public Vector3 mainCameraPosition;
-    public bool paintThisFrame;
+    public int pixelsPaintedPerSecond = 60;
+    
+    [HideInInspector] public LayerMask targetMask;
+    [HideInInspector] public Vector3 mainCameraPosition;
 
     private void Start()
     {
@@ -19,6 +21,19 @@ public class PixelGrid : MonoBehaviour
 
     private void Update()
     {
-        paintThisFrame = Input.GetMouseButtonDown(0);
+        if (Input.GetMouseButtonDown(0))
+        {
+            StopAllCoroutines();
+            StartCoroutine(PaintChildPixels());
+        }
+    }
+
+    private IEnumerator PaintChildPixels()
+    {
+        foreach(Transform child in transform)
+        {
+            child.gameObject.GetComponent<Pixel>().PaintPixel();
+            yield return new WaitForSeconds(1.0f / pixelsPaintedPerSecond);
+        }
     }
 }
