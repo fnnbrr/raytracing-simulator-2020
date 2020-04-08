@@ -44,6 +44,8 @@ public class Pixel : MonoBehaviour
             }
 
             _mesh.colors32 = newColors32;
+            
+            StartCoroutine(ClearLineAfterDelay(5));
         }
         else
         {
